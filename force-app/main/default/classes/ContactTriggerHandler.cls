@@ -17,12 +17,16 @@ public with sharing class ContactTriggerHandler extends TriggerHandler {
   }
 
   public override void beforeInsert() {
-    List<Contact> contactList = new List<Contact>();
     for (Contact contact : triggerNew) {
       if (contact.DummyJSON_Id__c == null) {
-        contactList.add(contact);
+        Integer randomNumber = Math.floor(Math.random() * 101).intValue();
+        contact.DummyJSON_Id__c = String.valueOf(randomNumber);
       }
-      assignDummyJsonId(contactList);
+    }
+  }
+
+  public override void afterInsert() {
+    for (Contact contact : triggerNew) {
       if (Integer.valueOf(contact.DummyJSON_Id__c) <= 100) {
         DummyJSONCallout.getDummyJSONUserFromId(contact.DummyJSON_Id__c);
       }
@@ -34,13 +38,6 @@ public with sharing class ContactTriggerHandler extends TriggerHandler {
       if (Integer.valueOf(contact.DummyJSON_Id__c) > 100) {
         DummyJSONCallout.postCreateDummyJSONUser(contact.DummyJSON_Id__c);
       }
-    }
-  }
-
-  public static void assignDummyJsonId(List<Contact> contactList) {
-    for (Contact contact : contactList) {
-      Integer randomNumber = (Integer) (Math.random() * 100);
-      contact.DummyJSON_Id__c = String.valueOf(randomNumber);
     }
   }
 }
